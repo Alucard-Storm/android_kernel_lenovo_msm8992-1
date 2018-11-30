@@ -80,6 +80,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a53";
 			reg = <0x0>;
+			clock-frequency = <1440000000>;
 			enable-method = "qcom,8994-arm-cortex-acc";
 			qcom,acc = <&acc0>;
 			qcom,ldo = <&ldo0>;
@@ -104,6 +105,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a53";
 			reg = <0x1>;
+			clock-frequency = <1440000000>;
 			enable-method = "qcom,8994-arm-cortex-acc";
 			qcom,acc = <&acc1>;
 			qcom,ldo = <&ldo1>;
@@ -122,6 +124,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a53";
 			reg = <0x2>;
+			clock-frequency = <1440000000>;
 			enable-method = "qcom,8994-arm-cortex-acc";
 			qcom,acc = <&acc2>;
 			qcom,ldo = <&ldo2>;
@@ -140,6 +143,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a53";
 			reg = <0x3>;
+			clock-frequency = <1440000000>;
 			enable-method = "qcom,8994-arm-cortex-acc";
 			qcom,acc = <&acc3>;
 			qcom,ldo = <&ldo3>;
@@ -158,6 +162,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a57";
 			reg = <0x100>;
+			clock-frequency = <2000000000>;
 			enable-method = "qcom,8994-arm-cortex-acc";
 			qcom,acc = <&acc4>;
 			qcom,ldo = <&ldo4>;
@@ -182,6 +187,7 @@
 			device_type = "cpu";
 			compatible = "arm,cortex-a57";
 			reg = <0x101>;
+			clock-frequency = <2000000000>;
 			enable-method = "qcom,8994-arm-cortex-acc";
 			qcom,acc = <&acc5>;
 			qcom,ldo = <&ldo5>;
@@ -3209,8 +3215,8 @@
 	qcom,msm-core@fc4b8000 {
 		compatible = "qcom,apss-core-ea";
 		reg = <0xfc4b8000 0x1000>;
-		qcom,low-hyst-temp = <10>;
-		qcom,high-hyst-temp = <5>;
+		qcom,low-hyst-temp = <100>;
+		qcom,high-hyst-temp = <100>;
 		qcom,polling-interval = <50>;
 
 		qcom,core-mapping {
