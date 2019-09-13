@@ -281,7 +281,7 @@ void msm_torch_brightness_set(struct led_classdev *led_cdev, enum led_brightness
         return;
     }
     
-	led_trigger_event(torch_trigger, value);
+    led_trigger_event(torch_trigger, value);
 };
 
 static struct led_classdev msm_torch_led[MAX_LED_TRIGGERS] = {
@@ -297,11 +297,13 @@ static struct led_classdev msm_torch_led[MAX_LED_TRIGGERS] = {
 	},
 };
 
-static int32_t msm_torch_create_classdev(struct platform_device *pdev, void *data)
+static int32_t msm_torch_create_classdev(struct platform_device *pdev,
+				void *data)
 {
 	int32_t rc = 0;
 	int32_t i = 0;
-	struct msm_flash_ctrl_t *fctrl = (struct msm_flash_ctrl_t *)data;
+	struct msm_flash_ctrl_t *fctrl =
+		(struct msm_flash_ctrl_t *)data;
 
 	if (!fctrl) {
 		pr_err("Invalid fctrl\n");
@@ -310,12 +312,12 @@ static int32_t msm_torch_create_classdev(struct platform_device *pdev, void *dat
 
 	for (i = 0; i < fctrl->torch_num_sources; i++) {
 		if (fctrl->torch_trigger[i]) {
-			CDBG("%s:%d SET value %d for torch", __func__, __LINE__, i);
-			msm_torch_brightness_init_led(fctrl->torch_trigger[i], LED_OFF);
+            CDBG("%s:%d SET value %d for torch", __func__, __LINE__, i);
+            msm_torch_brightness_init_led(fctrl->torch_trigger[i], LED_OFF);
             
-			rc = led_classdev_register(&pdev->dev, &msm_torch_led[i]);
-			if (rc) {
-				pr_err("Failed to register %d led dev. rc = %d\n", i, rc);
+            rc = led_classdev_register(&pdev->dev, &msm_torch_led[i]);
+            if (rc) {
+                pr_err("Failed to register %d led dev. rc = %d\n", i, rc);
 				return rc;
 			}
 		} else {
@@ -569,7 +571,7 @@ static int32_t msm_flash_i2c_release(
 	int32_t rc = 0;
 
 	if (!(&flash_ctrl->power_info) || !(&flash_ctrl->flash_i2c_client)) {
-		pr_err("%s:%d failed: %p %p\n",
+		pr_err("%s:%d failed: %pK %pK\n",
 			__func__, __LINE__, &flash_ctrl->power_info,
 			&flash_ctrl->flash_i2c_client);
 		return -EINVAL;
@@ -747,7 +749,6 @@ static int32_t msm_flash_low_2(
 
 #endif
 /*+End xujt1 add debug port for led flash driver 2015-04-08*/
-
 static int32_t msm_flash_init_prepare(
 	struct msm_flash_ctrl_t *flash_ctrl,
 	struct msm_flash_cfg_data_t *flash_data)
