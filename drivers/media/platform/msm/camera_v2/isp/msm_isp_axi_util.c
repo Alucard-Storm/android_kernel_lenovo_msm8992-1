@@ -959,8 +959,38 @@ static void msm_isp_axi_stream_enable_cfg(
 	if (stream_info->state == INACTIVE)
 		return;
 	for (i = 0; i < stream_info->num_planes; i++) {
-		if (stream_info->state == START_PENDING ||
-			stream_info->state == RESUME_PENDING) {
+		/*
+		 * In case when sensor is streaming, use dual vfe sync mode
+		 * to enable wm together and avoid split.
+		 */
+		if ((stream_info->stream_src < RDI_INTF_0) &&
+			vfe_dev->is_split && vfe_dev->pdev->id == ISP_VFE1 &&
+			dual_vfe_sync) {
+			dual_vfe_res = vfe_dev->dual_vfe_res;
+			if (!dual_vfe_res->vfe_base[ISP_VFE0] ||
+				!dual_vfe_res->axi_data[ISP_VFE0] ||
+				!dual_vfe_res->vfe_base[ISP_VFE1] ||
+				!dual_vfe_res->axi_data[ISP_VFE1]) {
+				pr_err("%s:%d failed vfe0 %pK %pK vfe %pK %pK\n",
+					__func__, __LINE__,
+					dual_vfe_res->vfe_base[ISP_VFE0],
+					dual_vfe_res->axi_data[ISP_VFE0],
+					dual_vfe_res->vfe_base[ISP_VFE1],
+					dual_vfe_res->axi_data[ISP_VFE1]);
+				goto error;
+			}
+			for (vfe_id = 0; vfe_id < MAX_VFE; vfe_id++) {
+				vfe_dev->hw_info->vfe_ops.axi_ops.
+					enable_wm(
+					dual_vfe_res->vfe_base[vfe_id],
+					dual_vfe_res->axi_data[vfe_id]->
+					stream_info[stream_idx].wm[i],
+					enable_wm);
+			}
+		} else if (!vfe_dev->is_split ||
+			(stream_info->stream_src >= RDI_INTF_0 &&
+			stream_info->stream_src <= RDI_INTF_2) ||
+			!dual_vfe_sync) {
 			vfe_dev->hw_info->vfe_ops.axi_ops.
 				enable_wm(vfe_dev, stream_info->wm[i], 1);
 		} else {
@@ -1269,7 +1299,7 @@ static int msm_isp_cfg_ping_pong_address(struct vfe_device *vfe_dev,
 				!dual_vfe_res->axi_data[ISP_VFE0] ||
 				!dual_vfe_res->vfe_base[ISP_VFE1] ||
 				!dual_vfe_res->axi_data[ISP_VFE1]) {
-				pr_err("%s:%d failed vfe0 %p %p vfe %p %p\n",
+				pr_err("%s:%d failed vfe0 %pK %pK vfe %pK %pK\n",
 					__func__, __LINE__,
 					dual_vfe_res->vfe_base[ISP_VFE0],
 					dual_vfe_res->axi_data[ISP_VFE0],
@@ -1478,7 +1508,7 @@ int msm_isp_drop_frame(struct vfe_device *vfe_dev,
 	int rc = -1;
 
 	if (!vfe_dev || !stream_info || !ts || !output_info) {
-		pr_err("%s %d  vfe_dev %p stream_info %p ts %p op_info %p\n",
+		pr_err("%s %d  vfe_dev %pK stream_info %pK ts %pK op_info %pK\n",
 			 __func__, __LINE__, vfe_dev, stream_info, ts,
 			output_info);
 		return -EINVAL;
@@ -1793,7 +1823,7 @@ int msm_isp_axi_reset(struct vfe_device *vfe_dev,
 	uint32_t bufq_handle = 0, bufq_id = 0;
 
 	if (!reset_cmd) {
-		pr_err("%s: NULL pointer reset cmd %p\n", __func__, reset_cmd);
+		pr_err("%s: NULL pointer reset cmd %pK\n", __func__, reset_cmd);
 		rc = -1;
 		return rc;
 	}
@@ -1823,7 +1853,7 @@ int msm_isp_axi_reset(struct vfe_device *vfe_dev,
 			bufq = vfe_dev->buf_mgr->ops->get_bufq(vfe_dev->buf_mgr,
 				bufq_handle);
 			if (!bufq) {
-				pr_err("%s: bufq null %p by handle %x\n",
+				pr_err("%s: bufq null %pK by handle %x\n",
 					__func__, bufq, bufq_handle);
 				continue;
 			}
@@ -2695,7 +2725,7 @@ void msm_isp_axi_disable_all_wm(struct vfe_device *vfe_dev)
 	int i, j;
 
 	if (!vfe_dev || !axi_data) {
-		pr_err("%s: error %p %p\n", __func__, vfe_dev, axi_data);
+		pr_err("%s: error %pK %pK\n", __func__, vfe_dev, axi_data);
 		return;
 	}
 
